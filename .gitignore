@@ -34,3 +34,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.env
+
+# Local jsons for migrating into the database
+/chats
+/data
