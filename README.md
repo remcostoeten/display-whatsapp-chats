@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## WhatsApp History Displayer
 
-## Getting Started
+This is a feature that allows you to render particular WhatsApp exported history in a UI, with messages stored safely in a PostgreSQL database. It includes the ability to mutate a "favorites" boolean, search through individual chats or all chats at once, and more.
 
-First, run the development server:
+## Tech Stack
+
+-   TypeScript, TailwindCSS, and Python
+
+    ### Python is used to convert your WhatsApp chat exports to `.json`, which is then used to seed the database. See [link to readme part seeding]
+
+-   Next.js 15 RC
+-   React 19 RC
+-   DrizzleORM
+-   PostgreSQL
+-   Zustand
+
+## Features
+
+-   Render WhatsApp exported chat history in a clean UI
+-   Store messages securely in PostgreSQL
+-   Mark messages as favorites with a toggle feature
+-   Search across individual or all chats
+-   Real-time updates on message states
+
+## Database Schema
+
+### Tables
+
+-   **messages**
+
+    -   Stores individual WhatsApp messages with fields like:
+        -   `id`: Unique identifier for each message.
+        -   `chatId`: Identifier for the chat, indexed for fast lookups.
+        -   `name`: Name of the sender.
+        -   `message`: Content of the message.
+        -   `timestamp`: Time the message was sent, with a default value of the current time.
+        -   `attachment`: Optional field for media attachments.
+
+-   **favorites**
+    -   Tracks messages that have been marked as favorites by users:
+        -   `id`: Unique identifier for each favorite entry.
+        -   `messageId`: Foreign key referencing the `messages` table. Indexed with `userId` for efficient querying.
+        -   `userId`: Identifier for the user who marked the message as a favorite.
+        -   `createdAt`: Timestamp for when the favorite was created.
+
+### Indexing
+
+-   An index is created on the `chatId` field in the `messages` table to allow faster queries when filtering by chat.
+-   A composite index is created on the `messageId` and `userId` fields in the `favorites` table to allow efficient lookups for a user's favorited messages.
+
+## Environment Variables
+
+Add the following environment variables to your `.env.local` file:
+
+-   `DATABASE_URL`: Connection string for PostgreSQL.
+-   `NEXT_PUBLIC_API_URL`: The API URL for accessing chat data.
+
+## Python Script for WhatsApp Export
+
+Python is used to parse the exported WhatsApp text file into JSON format. The JSON is then used to seed the PostgreSQL database.
+
+Steps:
+
+1. Place your WhatsApp `.txt` file in the `/exports` folder.
+2. Run the Python script to convert the file to JSON:
+
+    ```bash
+    python convert.py exports/whatsapp.txt --output chat.json
+    ```
+
+3. Use the generated JSON to populate your database.
+
+## API Endpoints
+
+-   `GET /api/chats`: Fetch all chats.
+-   `GET /api/chats/{chatId}`: Fetch individual chat details.
+-   `POST /api/messages/{messageId}/favorite`: Mark a message as favorite.
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone xxx && cd xx && cp .env.local.example .env.local && pnpm i
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## UI/UX
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+-   State management: Zustand is used for managing UI state, especially for toggling favorites and filtering messages.
+-   TailwindCSS is used for styling, ensuring a responsive and consistent UI.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Future Improvements
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   Add message encryption for enhanced privacy.
+-   Implement pagination for large chat histories.
+-   Support for media attachments in chats.
