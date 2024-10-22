@@ -1,4 +1,4 @@
-import Navigation from '@/components/layout/Navigation'
+import Providers from '@/components/base/providers'
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
@@ -24,13 +24,14 @@ export default function RootLayout({
 	children: React.ReactNode
 }>) {
 	return (
-		<html lang="en">
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950`}
-			>
-				<Navigation />
-				{children}
-			</body>
-		</html>
+		<Providers>
+			<html lang="en">
+				<body
+					className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950`}
+				>
+					{children}
+				</body>
+			</html>
+		</Providers>
 	)
 }
