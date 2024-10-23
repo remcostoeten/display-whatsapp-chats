@@ -1,3 +1,11 @@
+export interface Message {
+	id: number
+	role: 'user' | 'assistant'
+	content: string
+	timestamp: string
+	attachment?: string
+}
+
 export type ActionResult = {
 	error: string | null
 	success: boolean

@@ -1,9 +1,5 @@
-import { UserButton } from '@clerk/nextjs'
+import { LoaderWithText } from '@/components/loader'
 
 export default function page() {
-	return (
-		<div>
-			<UserButton />
-		</div>
-	)
+	return <LoaderWithText text="Loading chats..." />
 }

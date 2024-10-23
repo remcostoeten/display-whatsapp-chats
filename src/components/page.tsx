@@ -5,17 +5,17 @@ import { WelcomeScreen } from './landing/welcome-screen'
 import { LoaderWithText } from './loader'
 
 export default async function ChatsPage() {
-    const chats = await getChats()
+	const chats = await getChats()
 
-    return (
-        <div className="h-full flex flex-col">
-            <Suspense fallback={<LoaderWithText text="Loading chats..." />}>
-                {chats.length > 0 ? (
-                    <ChatList initialChats={chats} />
-                ) : (
-                    <WelcomeScreen />
-                )}
-            </Suspense>
-        </div>
-    )
+	return (
+		<div className="h-full flex flex-col">
+			<Suspense fallback={<LoaderWithText text="Loading chats..." />}>
+				{chats.length > 0 ? (
+					<ChatList initialChats={chats} />
+				) : (
+					<WelcomeScreen />
+				)}
+			</Suspense>
+		</div>
+	)
 }

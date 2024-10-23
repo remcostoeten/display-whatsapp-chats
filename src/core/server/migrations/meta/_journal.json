@@ -5,15 +5,8 @@
 		{
 			"idx": 0,
 			"version": "5",
-			"when": 1729564396602,
-			"tag": "0000_furry_steel_serpent",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "5",
-			"when": 1729566641321,
-			"tag": "0001_lazy_warpath",
+			"when": 1729623657553,
+			"tag": "0000_graceful_luckman",
 			"breakpoints": true
 		}
 	]

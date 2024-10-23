@@ -1,14 +1,33 @@
-import { drizzle } from 'drizzle-orm/node-postgres'
-import { Pool } from 'pg'
+import { neon, NeonQueryFunction, Pool } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-http'
 
-// For Next.js, ensure to use edge-runtime compatible config
-if (!process.env.POSTGRES_URL) {
-	throw new Error('POSTGRES_URL is missing')
+type DatabaseConfig = {
+	POSTGRES_URL: string
+	SCHEMA: string
+	MESSAGES: string
+	FAVORITES: string
 }
 
-const pool = new Pool({
-	connectionString: process.env.POSTGRES_URL,
-	ssl: true // Railway requires SSL
-})
+const databaseConfig: DatabaseConfig = {
+	POSTGRES_URL: process.env.POSTGRES_URL || '',
+	SCHEMA: process.env.SCHEMA || '',
+	MESSAGES: process.env.MESSAGES || '',
+	FAVORITES: process.env.FAVORITES || ''
+}
 
-export const db = drizzle(pool)
+let sql: NeonQueryFunction<boolean, boolean>
+let db: ReturnType<typeof drizzle>
+let pool: Pool
+
+if (typeof window === 'undefined') {
+	sql = neon(databaseConfig.POSTGRES_URL)
+	db = drizzle(sql, {
+		schema: {
+			messages: databaseConfig.MESSAGES,
+			favorites: databaseConfig.FAVORITES
+		}
+	})
+	pool = new Pool({ connectionString: databaseConfig.POSTGRES_URL })
+}
+
+export { db, pool, sql }

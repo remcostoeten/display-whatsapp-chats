@@ -1,44 +1,56 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { addFavorite, isFavorite, removeFavorite } from '@/utils/fileUtils'
+import { Button } from 'ui'
+import {
+	addFavorite,
+	isFavorite
+} from '@/core/server/actions/chats/favorite-action'
 import { Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 type FavoriteButtonProps = {
-    messageId: number
-    chatId: string
-    isFavorite: boolean
+	messageId: number
+	chatId: string
+	isFavorite: boolean
 }
 
-export default function FavoriteButton({ messageId, chatId, isFavorite: initialIsFavorite }: FavoriteButtonProps) {
-    const [favorite, setFavorite] = useState(initialIsFavorite)
-    const userId = 'user123'
+export default function FavoriteButton({
+	messageId,
+	chatId,
+	isFavorite: initialIsFavorite
+}: FavoriteButtonProps) {
+	const [favorite, setFavorite] = useState(initialIsFavorite)
+	const userId = 'user123'
 
-    useEffect(() => {
-        const checkFavorite = async () => {
-            const result = await isFavorite(userId, messageId)
-            setFavorite(result)
-        }
-        checkFavorite()
-    }, [userId, messageId])
+	useEffect(() => {
+		const checkFavorite = async () => {
+			const result = await isFavorite(userId, messageId)
+			setFavorite(result)
+		}
+		checkFavorite()
+	}, [userId, messageId])
 
-    const toggleFavorite = async () => {
-        try {
-            if (favorite) {
-                await removeFavorite(userId, messageId)
-            } else {
-                await addFavorite(userId, messageId)
-            }
-            setFavorite(!favorite)
-        } catch (error) {
-            console.error('Error toggling favorite:', error)
-        }
-    }
+	const toggleFavorite = async () => {
+		try {
+			if (favorite) {
+				await removeFavorite(userId, messageId)
+			} else {
+				await addFavorite(userId, messageId)
+			}
+			setFavorite(!favorite)
+		} catch (error) {
+			console.error('Error toggling favorite:', error)
+		}
+	}
 
-    return (
-        <Button variant="ghost" size="icon" onClick={toggleFavorite}>
-            <Star className={`h-4 w-4 ${favorite ? 'text-yellow-500 fill-current' : ''}`} />
-        </Button>
-    )
+	return (
+		<Button variant="ghost" size="icon" onClick={toggleFavorite}>
+			<Star
+				className={`h-4 w-4 ${favorite ? 'text-yellow-500 fill-current' : ''}`}
+			/>
+		</Button>
+	)
+}
+function removeFavorite(userId: string, messageId: number) {
+	throw new Error('Function not implemented.')
 }
