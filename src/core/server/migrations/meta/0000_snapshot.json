@@ -1,0 +1,170 @@
+{
+	"id": "19792e9c-0946-4dc0-868c-647edafc3f13",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"version": "5",
+	"dialect": "pg",
+	"tables": {
+		"chat_settings": {
+			"name": "chat_settings",
+			"schema": "",
+			"columns": {
+				"chat_id": {
+					"name": "chat_id",
+					"type": "varchar(36)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"pin_code": {
+					"name": "pin_code",
+					"type": "varchar(64)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"failed_attempts": {
+					"name": "failed_attempts",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"last_failed_attempt": {
+					"name": "last_failed_attempt",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"failed_attempts_idx": {
+					"name": "failed_attempts_idx",
+					"columns": ["failed_attempts", "last_failed_attempt"],
+					"isUnique": false
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		},
+		"favorites": {
+			"name": "favorites",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(36)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"message_id": {
+					"name": "message_id",
+					"type": "varchar(36)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "varchar(36)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"timestamp": {
+					"name": "timestamp",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {
+				"user_id_idx": {
+					"name": "user_id_idx",
+					"columns": ["user_id"],
+					"isUnique": false
+				},
+				"unique_favorite_idx": {
+					"name": "unique_favorite_idx",
+					"columns": ["message_id", "user_id"],
+					"isUnique": true
+				}
+			},
+			"foreignKeys": {
+				"favorites_message_id_messages_id_fk": {
+					"name": "favorites_message_id_messages_id_fk",
+					"tableFrom": "favorites",
+					"tableTo": "messages",
+					"columnsFrom": ["message_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		},
+		"messages": {
+			"name": "messages",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "varchar(36)",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"chat_id": {
+					"name": "chat_id",
+					"type": "varchar(36)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "varchar(100)",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"message": {
+					"name": "message",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"timestamp": {
+					"name": "timestamp",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"attachment": {
+					"name": "attachment",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"chat_id_idx": {
+					"name": "chat_id_idx",
+					"columns": ["chat_id"],
+					"isUnique": false
+				},
+				"timestamp_chat_idx": {
+					"name": "timestamp_chat_idx",
+					"columns": ["chat_id", "timestamp"],
+					"isUnique": false
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {}
+		}
+	},
+	"enums": {},
+	"schemas": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

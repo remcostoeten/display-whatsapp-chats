@@ -1,36 +1,33 @@
-import { createClient } from '@supabase/supabase-js'
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
+import { neon, NeonQueryFunction, Pool } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-http'
 
 type DatabaseConfig = {
 	POSTGRES_URL: string
-	SUPABASE_URL: string
-	SUPABASE_ANON_KEY: string
-	ADMIN_EMAIL: string
+	SCHEMA: string
+	MESSAGES: string
+	FAVORITES: string
 }
 
 const databaseConfig: DatabaseConfig = {
 	POSTGRES_URL: process.env.POSTGRES_URL || '',
-	SUPABASE_URL: process.env.SUPABASE_URL || '',
-	SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || '',
-	ADMIN_EMAIL: process.env.ADMIN_EMAIL || ''
+	SCHEMA: process.env.SCHEMA || '',
+	MESSAGES: process.env.MESSAGES || '',
+	FAVORITES: process.env.FAVORITES || ''
 }
 
+let sql: NeonQueryFunction<boolean, boolean>
 let db: ReturnType<typeof drizzle>
-let supabase: ReturnType<typeof createClient>
+let pool: Pool
 
 if (typeof window === 'undefined') {
-	const client = postgres(databaseConfig.POSTGRES_URL, { ssl: 'require' })
-	db = drizzle(client)
-
-	supabase = createClient(
-		databaseConfig.SUPABASE_URL,
-		databaseConfig.SUPABASE_ANON_KEY
-	)
+	sql = neon(databaseConfig.POSTGRES_URL)
+	db = drizzle(sql, {
+		schema: {
+			messages: databaseConfig.MESSAGES,
+			favorites: databaseConfig.FAVORITES
+		}
+	})
+	pool = new Pool({ connectionString: databaseConfig.POSTGRES_URL })
 }
 
-export { db, supabase }
-
-export const isAdminEmail = (email: string) => {
-	return email === databaseConfig.ADMIN_EMAIL
-}
+export { db, pool, sql }

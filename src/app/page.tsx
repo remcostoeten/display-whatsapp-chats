@@ -1,3 +1,5 @@
+import { LoaderWithText } from '@/components/loader'
+
 export default function page() {
-	return <div>page</div>
+	return <LoaderWithText text="Loading chats..." />
 }

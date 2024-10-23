@@ -1,53 +1,92 @@
-import { Session } from 'inspector'
-import { User } from 'lucia'
 import {
-	NewUser,
-	UsernameAndPassword,
-	authRelations,
-	authenticationSchema,
-	isAdminEmail,
-	sessions,
-	users
-} from './auth'
+	index,
+	integer,
+	pgTable,
+	text,
+	timestamp,
+	uniqueIndex,
+	varchar
+} from 'drizzle-orm/pg-core'
 
-// Re-export everything from auth schema
-export * from './auth'
+// Messages table with optimizations
+export const messages = pgTable(
+	'messages',
+	{
+		// Use UUID instead of text for better performance
+		id: varchar('id', { length: 36 }).primaryKey(),
 
-// Export specific tables for drizzle config and queries
-export const tables = {
-	// Auth tables
-	users,
-	sessions
-	// Add other tables as your app grows
-	// chats,
-	// messages,
-	// etc.
-} as const
+		// Fixed-length varchar for known-length fields
+		chatId: varchar('chat_id', { length: 36 }).notNull(),
+		name: varchar('name', { length: 100 }).notNull(),
 
-// Export all relations
-export const relations = {
-	authRelations
-	// Add other relations as your app grows
-	// chatRelations,
-	// messageRelations,
-	// etc.
-} as const
+		// Keep text for variable-length content
+		message: text('message').notNull(),
 
-// Export schema validators
-export const validators = {
-	authenticationSchema
-	// Add other validators as your app grows
-	// chatSchema,
-	// messageSchema,
-	// etc.
-} as const
+		// Use timestamptz for timezone awareness
+		timestamp: timestamp('timestamp', { withTimezone: true })
+			.defaultNow()
+			.notNull(),
 
-// Helper type to infer all tables
-export type Tables = typeof tables
-export type TableName = keyof Tables
+		// Optional attachment field
+		attachment: text('attachment')
+	},
+	table => {
+		return {
+			// Index for common queries
+			chatIdIdx: index('chat_id_idx').on(table.chatId),
+			// Compound index for time-based queries within a chat
+			timestampIdx: index('timestamp_chat_idx').on(
+				table.chatId,
+				table.timestamp
+			)
+		}
+	}
+)
 
-// Re-export commonly used types
-export type { NewUser, Session, User, UsernameAndPassword }
+// Favorites table with optimizations
+export const favorites = pgTable(
+	'favorites',
+	{
+		id: varchar('id', { length: 36 }).primaryKey(),
+		messageId: varchar('message_id', { length: 36 })
+			.notNull()
+			.references(() => messages.id),
+		userId: varchar('user_id', { length: 36 }).notNull(),
+		timestamp: timestamp('timestamp', { withTimezone: true })
+			.defaultNow()
+			.notNull()
+	},
+	table => {
+		return {
+			// Index for user's favorites queries
+			userIdIdx: index('user_id_idx').on(table.userId),
+			// Unique compound index to prevent duplicate favorites
+			uniqueFavorite: uniqueIndex('unique_favorite_idx').on(
+				table.messageId,
+				table.userId
+			)
+		}
+	}
+)
 
-// Re-export helpers
-export { isAdminEmail }
+// Chat settings table with optimizations
+export const chatSettings = pgTable(
+	'chat_settings',
+	{
+		chatId: varchar('chat_id', { length: 36 }).primaryKey(),
+		pinCode: varchar('pin_code', { length: 64 }), // Optional pin code
+		failedAttempts: integer('failed_attempts').default(0).notNull(),
+		lastFailedAttempt: timestamp('last_failed_attempt', {
+			withTimezone: true
+		})
+	},
+	table => {
+		return {
+			// Index for failed attempts monitoring
+			failedAttemptsIdx: index('failed_attempts_idx').on(
+				table.failedAttempts,
+				table.lastFailedAttempt
+			)
+		}
+	}
+)

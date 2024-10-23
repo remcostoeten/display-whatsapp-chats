@@ -1,5 +1,8 @@
 ## WhatsApp History Displayer
 
+> [!NOTE]  
+> This is a work in progress.
+
 This is a feature that allows you to render particular WhatsApp exported history in a UI, with messages stored safely in a PostgreSQL database. It includes the ability to mutate a "favorites" boolean, search through individual chats or all chats at once, and more.
 
 ## Tech Stack
